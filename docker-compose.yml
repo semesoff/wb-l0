@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  kafka:
+    image: apache/kafka
+    container_name: kafka_container
+    ports:
+      - "9092:9092"
+
+  postgres:
+    image: postgres:17
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db
+    ports:
+      - "8080:8080"
+      -
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+      - postgres

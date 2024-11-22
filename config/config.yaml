@@ -1,0 +1,15 @@
+database:
+  host: localhost
+  port: 8080
+  user: root
+  password: root
+  name: db
+
+kafka:
+  host: localhost
+  port: 9092
+  topic: topic
+
+app:
+  host: localhost
+  port: 8080
