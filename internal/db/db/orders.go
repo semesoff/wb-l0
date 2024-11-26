@@ -1,17 +1,15 @@
-package orders
+package db
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
-	db2 "wb-l0/internal/db/db"
 	"wb-l0/internal/models/order"
 )
 
-func AddOrder(order order.Order) error {
-	db := db2.GetDB()
-
-	tx, err := db.Begin()
+func (db *Database) AddOrder(order order.Order) error {
+	DB := db.db
+	tx, err := DB.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
@@ -80,12 +78,12 @@ func AddOrder(order order.Order) error {
 	return nil
 }
 
-func GetOrder(orderUid string) (*order.Order, error) {
-	db := db2.GetDB()
+func (db *Database) GetOrder(orderUid string) (*order.Order, error) {
+	DB := db.db
 	var ord order.Order
 
 	// get data from orders table
-	err := db.QueryRow(`
+	err := DB.QueryRow(`
 		SELECT
 			order_uid, track_number, entry, locale, internal_signature,
 			customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard
@@ -103,7 +101,7 @@ func GetOrder(orderUid string) (*order.Order, error) {
 	}
 
 	// get data from delivery table
-	err = db.QueryRow(`
+	err = DB.QueryRow(`
 		SELECT name, phone, zip, city, address, region, email
 		FROM delivery
 		WHERE order_uid = $1
@@ -116,7 +114,7 @@ func GetOrder(orderUid string) (*order.Order, error) {
 	}
 
 	// get data from payment table
-	err = db.QueryRow(`
+	err = DB.QueryRow(`
 		SELECT transaction, request_id, currency, provider, amount, payment_dt, bank,
 			   delivery_cost, goods_total, custom_fee
 		FROM payment
@@ -131,7 +129,7 @@ func GetOrder(orderUid string) (*order.Order, error) {
 	}
 
 	// get data from item table
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 		SELECT chrt_id, track_number, price, rid, name, sale, size, total_price,
 		       nm_id, brand, status
 		FROM item

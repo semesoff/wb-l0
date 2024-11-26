@@ -12,7 +12,7 @@ import (
 )
 
 type Producer interface {
-	Start()
+	Start(cfg *config.Kafka)
 }
 
 type KafkaProducer struct{}
@@ -40,8 +40,7 @@ func prepareJSON() ([]byte, error) {
 	return messageBytes, nil
 }
 
-func (kp *KafkaProducer) Start() {
-	cfg := config.GetConfig().Kafka
+func (kp *KafkaProducer) Start(cfg *config.Kafka) {
 	writer := kafka.Writer{
 		Addr:     kafka.TCP(fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)),
 		Topic:    cfg.Topic,

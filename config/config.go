@@ -7,10 +7,10 @@ import (
 )
 
 type Config struct {
-	Database Database `yaml:"database"`
-	Redis    Redis    `yaml:"redis"`
-	Kafka    Kafka    `yaml:"kafka"`
-	App      App      `yaml:"app"`
+	Database *Database `yaml:"database"`
+	Redis    *Redis    `yaml:"redis"`
+	Kafka    *Kafka    `yaml:"kafka"`
+	App      *App      `yaml:"app"`
 }
 
 type Database struct {
@@ -37,11 +37,21 @@ type App struct {
 	Port string `yaml:"port"`
 }
 
-var (
-	cfg *Config
-)
+type ConfigProvider interface {
+	GetConfig() *Config
+}
 
-func InitConfig() {
+type ConfigManager struct {
+	config *Config
+}
+
+func NewConfigManager() *ConfigManager {
+	cfg := &ConfigManager{}
+	cfg.InitConfig()
+	return cfg
+}
+
+func (cm *ConfigManager) InitConfig() {
 	file, err := os.Open("config/config.yaml")
 	if err != nil {
 		log.Fatalln(err)
@@ -56,10 +66,10 @@ func InitConfig() {
 	if err := decoder.Decode(&config); err != nil {
 		log.Fatalln(err)
 	}
-	cfg = &config
+	cm.config = &config
 	log.Println("Config is initialized")
 }
 
-func GetConfig() *Config {
-	return cfg
+func (cm *ConfigManager) GetConfig() *Config {
+	return cm.config
 }

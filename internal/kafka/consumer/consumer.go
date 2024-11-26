@@ -6,20 +6,23 @@ import (
 	"github.com/segmentio/kafka-go"
 	"log"
 	"wb-l0/config"
+	"wb-l0/internal/db/db"
 )
 
 type Consumer interface {
-	Start(ch *chan struct{})
+	Start(ch *chan struct{}, cfg *config.Kafka)
 }
 
-type KafkaConsumer struct{}
-
-func NewConsumer() *KafkaConsumer {
-	return &KafkaConsumer{}
+type KafkaConsumer struct {
+	db *db.DatabaseProvider
 }
 
-func (kc *KafkaConsumer) Start(ch *chan struct{}) {
-	cfg := config.GetConfig().Kafka
+func NewConsumer(db *db.DatabaseProvider) *KafkaConsumer {
+	kc := &KafkaConsumer{db: db}
+	return kc
+}
+
+func (kc *KafkaConsumer) Start(ch *chan struct{}, cfg *config.Kafka) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)},
 		Topic:    cfg.Topic,

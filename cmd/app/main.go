@@ -12,16 +12,15 @@ import (
 )
 
 func main() {
-	config.InitConfig()
-	db.InitDB()
-	defer db.CloseDB()
-	kafka.NewKafkaManager().StartKafkaServices()
+	cfg := config.NewConfigManager()
+	database := db.NewDatabase(cfg.GetConfig().Database)
+	kafka.NewKafkaManager(database).StartKafkaServices(cfg.GetConfig().Kafka)
 
 	r := mux.NewRouter()
 	router.InitRouter(r)
 
-	cfg := config.GetConfig().App
-	serverAddress := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+	cfgApp := cfg.GetConfig().App
+	serverAddress := fmt.Sprintf("%s:%s", cfgApp.Host, cfgApp.Port)
 	log.Println("Server is starting on", serverAddress)
 	if ok := http.ListenAndServe(serverAddress, r); ok != nil {
 		log.Fatalf("Error: %v", ok)
