@@ -5,11 +5,15 @@ database:
   password: root
   name: db
 
+redis:
+  host: redis-16234.c328.europe-west3-1.gce.redns.redis-cloud.com:16234
+  password: sX2td58ctyPZd2ZBz1083sC1aZIhyoYt
+
 kafka:
   host: localhost
   port: 9092
-  topic: topic
+  topic: orders
 
 app:
   host: localhost
-  port: 8080
+  port: 8000

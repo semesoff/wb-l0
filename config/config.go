@@ -1,12 +1,14 @@
 package config
 
 import (
+	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 )
 
 type Config struct {
 	Database Database `yaml:"database"`
+	Redis    Redis    `yaml:"redis"`
 	Kafka    Kafka    `yaml:"kafka"`
 	App      App      `yaml:"app"`
 }
@@ -19,9 +21,15 @@ type Database struct {
 	Name     string `yaml:"name"`
 }
 
+type Redis struct {
+	Host     string `yaml:"host"`
+	Password string `yaml:"password"`
+}
+
 type Kafka struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Host  string `yaml:"host"`
+	Port  string `yaml:"port"`
+	Topic string `yaml:"topic"`
 }
 
 type App struct {
@@ -48,8 +56,8 @@ func InitConfig() {
 	if err := decoder.Decode(&config); err != nil {
 		log.Fatalln(err)
 	}
-	log.Println("Config is initialized")
 	cfg = &config
+	log.Println("Config is initialized")
 }
 
 func GetConfig() *Config {
