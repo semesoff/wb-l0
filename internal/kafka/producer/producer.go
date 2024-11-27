@@ -7,12 +7,13 @@ import (
 	"github.com/segmentio/kafka-go"
 	"log"
 	"os"
+	"sync"
 	"wb-l0/config"
 	"wb-l0/internal/models/order"
 )
 
 type Producer interface {
-	Start(cfg *config.Kafka)
+	Start(cfg *config.Kafka, wg *sync.WaitGroup)
 }
 
 type KafkaProducer struct{}
@@ -40,7 +41,7 @@ func prepareJSON() ([]byte, error) {
 	return messageBytes, nil
 }
 
-func (kp *KafkaProducer) Start(cfg *config.Kafka) {
+func (kp *KafkaProducer) Start(cfg *config.Kafka, wg *sync.WaitGroup) {
 	writer := kafka.Writer{
 		Addr:     kafka.TCP(fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)),
 		Topic:    cfg.Topic,
@@ -48,6 +49,7 @@ func (kp *KafkaProducer) Start(cfg *config.Kafka) {
 	}
 
 	log.Println("Producer is started.")
+	wg.Done()
 
 	defer func() {
 		if err := writer.Close(); err != nil {

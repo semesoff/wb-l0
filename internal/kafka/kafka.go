@@ -3,6 +3,7 @@ package kafka
 import (
 	"sync"
 	"wb-l0/config"
+	"wb-l0/internal/cache"
 	"wb-l0/internal/db/db"
 	"wb-l0/internal/kafka/consumer"
 	"wb-l0/internal/kafka/producer"
@@ -13,9 +14,9 @@ type KafkaManager struct {
 	Producer producer.Producer
 }
 
-func NewKafkaManager(db *db.DatabaseProvider) *KafkaManager {
+func NewKafkaManager(db *db.DatabaseProvider, r *cache.RedisProvider) *KafkaManager {
 	return &KafkaManager{
-		Consumer: consumer.NewConsumer(db),
+		Consumer: consumer.NewConsumer(db, r),
 		Producer: producer.NewProducer(),
 	}
 }
@@ -26,14 +27,14 @@ func (k *KafkaManager) StartKafkaServices(cfg *config.Kafka) {
 	wg.Add(2)
 
 	go func() {
-		defer wg.Done()
-		k.Consumer.Start(&ch, cfg)
+		// wg done in consumer start
+		k.Consumer.Start(&ch, cfg, &wg)
 	}()
 
 	go func() {
-		defer wg.Done()
+		// wg done in producer start
 		<-ch
-		k.Producer.Start(cfg)
+		k.Producer.Start(cfg, &wg)
 	}()
 
 	wg.Wait()

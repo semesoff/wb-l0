@@ -3,7 +3,7 @@ database:
   port: 8080
   user: root
   password: root
-  name: db
+  name: postgres
 
 redis:
   host: redis-16234.c328.europe-west3-1.gce.redns.redis-cloud.com:16234

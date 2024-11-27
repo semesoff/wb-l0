@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .header {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 20px;
+            margin-top: 20px;
+            text-decoration: underline;
+        }
+        .no-data {
+            font-size: 18px;
+            color: red;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Order Details</h1>
+    </div>
+
+    <!-- Check if order data exists -->
+    {{if .OrderUid}}
+    <!-- Order Information -->
+    <div>
+        <p><strong>Order UID:</strong> {{.OrderUid}}</p>
+        <p><strong>Track Number:</strong> {{.TrackNumber}}</p>
+        <p><strong>Entry:</strong> {{.Entry}}</p>
+        <p><strong>Locale:</strong> {{.Locale}}</p>
+        <p><strong>Internal Signature:</strong> {{.InternalSignature}}</p>
+        <p><strong>Customer ID:</strong> {{.CustomerId}}</p>
+        <p><strong>Delivery Service:</strong> {{.DeliveryService}}</p>
+        <p><strong>Shard Key:</strong> {{.ShardKey}}</p>
+        <p><strong>SM ID:</strong> {{.SmId}}</p>
+        <p><strong>Order Created:</strong> {{.DateCreated}}</p>
+        <p><strong>Oof Shard:</strong> {{.OofShard}}</p>
+    </div>
+
+    <!-- Delivery Information -->
+    {{if .Delivery.Name}}
+    <div class="section-title">Delivery Information</div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>{{.Delivery.Name}}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{.Delivery.Phone}}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{.Delivery.Email}}</td>
+        </tr>
+        <tr>
+            <th>Zip Code</th>
+            <td>{{.Delivery.Zip}}</td>
+        </tr>
+        <tr>
+            <th>City</th>
+            <td>{{.Delivery.City}}</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>{{.Delivery.Address}}</td>
+        </tr>
+        <tr>
+            <th>Region</th>
+            <td>{{.Delivery.Region}}</td>
+        </tr>
+    </table>
+    {{else}}
+    <p class="no-data">Нет данных по этому ID для доставки.</p>
+    {{end}}
+
+    <!-- Payment Information -->
+    {{if .Payment.Transaction}}
+    <div class="section-title">Payment Information</div>
+    <table>
+        <tr>
+            <th>Transaction</th>
+            <td>{{.Payment.Transaction}}</td>
+        </tr>
+        <tr>
+            <th>Request ID</th>
+            <td>{{.Payment.RequestId}}</td>
+        </tr>
+        <tr>
+            <th>Currency</th>
+            <td>{{.Payment.Currency}}</td>
+        </tr>
+        <tr>
+            <th>Provider</th>
+            <td>{{.Payment.Provider}}</td>
+        </tr>
+        <tr>
+            <th>Amount</th>
+            <td>{{.Payment.Amount}}</td>
+        </tr>
+        <tr>
+            <th>Payment Date</th>
+            <td>{{.Payment.PaymentDt}}</td>
+        </tr>
+        <tr>
+            <th>Bank</th>
+            <td>{{.Payment.Bank}}</td>
+        </tr>
+        <tr>
+            <th>Delivery Cost</th>
+            <td>{{.Payment.DeliveryCost}}</td>
+        </tr>
+        <tr>
+            <th>Goods Total</th>
+            <td>{{.Payment.GoodsTotal}}</td>
+        </tr>
+        <tr>
+            <th>Custom Fee</th>
+            <td>{{.Payment.CustomFee}}</td>
+        </tr>
+    </table>
+    {{else}}
+    <p class="no-data">Нет данных по этому ID для оплаты.</p>
+    {{end}}
+
+    <!-- Items -->
+    {{if .Items}}
+    <div class="section-title">Items</div>
+    <table>
+        <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Price</th>
+            <th>Sale</th>
+            <th>Size</th>
+            <th>Total Price</th>
+            <th>Brand</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Items}}
+        <tr>
+            <td>{{.Name}}</td>
+            <td>{{.Price}}</td>
+            <td>{{.Sale}}</td>
+            <td>{{.Size}}</td>
+            <td>{{.TotalPrice}}</td>
+            <td>{{.Brand}}</td>
+            <td>{{.Status}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p class="no-data">Нет данных по этому ID для товаров.</p>
+    {{end}}
+
+    {{else}}
+    <p class="no-data">Нет данных по этому ID.</p>
+    {{end}}
+</div>
+
+</body>
+</html>

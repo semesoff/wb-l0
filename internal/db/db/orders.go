@@ -13,13 +13,12 @@ func (db *Database) AddOrder(order order.Order) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
-
 	// add data into orders table
 	_, err = tx.Exec(`
 		INSERT INTO orders (
 			order_uid, track_number, entry, locale, internal_signature,
 			customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (order_uid) DO NOTHING`,
 		order.OrderUid, order.TrackNumber, order.Entry, order.Locale, order.InternalSignature,
 		order.CustomerId, order.DeliveryService, order.ShardKey, order.SmId, order.DateCreated, order.OofShard,
 	)
@@ -32,7 +31,7 @@ func (db *Database) AddOrder(order order.Order) error {
 	_, err = tx.Exec(`
 		INSERT INTO delivery (
 			order_uid, name, phone, zip, city, address, region, email
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (order_uid) DO NOTHING`,
 		order.OrderUid, order.Delivery.Name, order.Delivery.Phone, order.Delivery.Zip,
 		order.Delivery.City, order.Delivery.Address, order.Delivery.Region, order.Delivery.Email,
 	)
@@ -44,8 +43,8 @@ func (db *Database) AddOrder(order order.Order) error {
 	// add data into payment table
 	_, err = tx.Exec(`
 		INSERT INTO payment (
-			id, order_uid, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+			order_uid, transaction, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (order_uid) DO NOTHING`,
 		order.OrderUid, order.Payment.Transaction, order.Payment.RequestId, order.Payment.Currency,
 		order.Payment.Provider, order.Payment.Amount, order.Payment.PaymentDt, order.Payment.Bank,
 		order.Payment.DeliveryCost, order.Payment.GoodsTotal, order.Payment.CustomFee,
@@ -61,7 +60,7 @@ func (db *Database) AddOrder(order order.Order) error {
 			INSERT INTO item (
 				order_uid, chrt_id, track_number, price, rid, name, sale, size,
 				total_price, nm_id, brand, status
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT (order_uid) DO NOTHING`,
 			order.OrderUid, item.ChrtId, item.TrackNumber, item.Price, item.Rid,
 			item.Name, item.Sale, item.Size, item.TotalPrice, item.NmId, item.Brand, item.Status,
 		)
@@ -157,4 +156,9 @@ func (db *Database) GetOrder(orderUid string) (*order.Order, error) {
 	}
 
 	return &ord, nil
+}
+
+// TODO: implement this method
+func (db *Database) RestoreCache() {
+
 }
