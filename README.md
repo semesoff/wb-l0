@@ -6,6 +6,7 @@ This is test task L0.
 ```bash
 git clone https://github.com/semesoff/wb-l0.git
 cd wb_l0
+go mod tidy
 ```
 
 ### Launch
