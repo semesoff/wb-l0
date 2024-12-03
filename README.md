@@ -27,3 +27,4 @@ go run cmd/app/main.go
 ```bash
 http://localhost:8000/orders/b563feb7b2b84b6test
 ```
+or run test in tests/test.http
