@@ -1,0 +1,5 @@
+### Get
+GET http://localhost:8000/orders/b563feb7b2b84b6test
+
+### Get
+GET http://localhost:8000/orders/a1234567b2b84b6example

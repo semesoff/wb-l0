@@ -10,7 +10,7 @@ import (
 )
 
 type DatabaseProvider interface {
-	AddOrder(order order.Order) error
+	AddOrder(order order.Order, dataBytes []byte) error
 	GetOrder(orderUid string) (*order.Order, error)
 }
 
@@ -37,13 +37,6 @@ func (DB *Database) InitDB(cfg *config.Database) {
 		log.Fatalf("Error pinging database: %v", err)
 		return
 	}
+	log.Println("Database is connected.")
 	DB.db = db
 }
-
-//func (DB *Database) GetDB() *Database {
-//	if DB == nil || DB.db == nil {
-//		log.Fatal("Database is not initialized. Call InitDB() first.")
-//		return nil
-//	}
-//	return DB
-//}

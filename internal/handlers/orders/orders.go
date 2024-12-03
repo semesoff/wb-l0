@@ -14,6 +14,9 @@ func HandlerOrders(w http.ResponseWriter, r *http.Request, redisProvider *cache.
 	var orderData order.Order
 	if data, err := (*redisProvider).BytesToModel(orderUID); err == nil {
 		orderData = data
+	} else {
+		http.Error(w, "Order not found", http.StatusNotFound)
+		return
 	}
 	renderOrdersPage(w, orderData)
 }

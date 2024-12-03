@@ -2,7 +2,6 @@ package consumer
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"log"
@@ -10,7 +9,7 @@ import (
 	"wb-l0/config"
 	"wb-l0/internal/cache"
 	"wb-l0/internal/db/db"
-	"wb-l0/internal/models/order"
+	"wb-l0/internal/utils"
 )
 
 type Consumer interface {
@@ -34,16 +33,16 @@ func (kc *KafkaConsumer) Start(ch *chan struct{}, cfg *config.Kafka, wg *sync.Wa
 		GroupID:  "order-consumers",
 		MaxBytes: 1024 * 1024 * 2,
 	})
+	defer func(reader *kafka.Reader) {
+		err := reader.Close()
+		if err != nil {
+
+		}
+	}(reader)
 
 	close(*ch)
 	log.Println("Consumer is started.")
 	wg.Done()
-
-	//defer func() {
-	//	if err := reader.Close(); err != nil {
-	//		log.Printf("error while closing reader: %v\n", err)
-	//	}
-	//}()
 
 	for {
 		msg, err := reader.ReadMessage(context.Background())
@@ -51,40 +50,19 @@ func (kc *KafkaConsumer) Start(ch *chan struct{}, cfg *config.Kafka, wg *sync.Wa
 			continue
 		}
 		log.Printf("Received message: key=%s, value=%s\n", string(msg.Key), string(msg.Value))
-		if orderData, err := encodeMessage(msg); err == nil {
-			if err := (*kc.db).AddOrder(orderData); err != nil {
+		if orderData, err := utils.EncodeMessage(msg.Value); err == nil {
+			if err := (*kc.db).AddOrder(orderData, msg.Value); err != nil {
 				log.Printf("error while adding order: %v\n", err)
 			} else {
 				log.Printf("message with key %s is added to database\n", msg.Key)
 			}
-			if dataBytes, err := prepareJSON(orderData); err != nil {
+			if err := (*kc.r).SetCache(orderData.OrderUid, msg.Value); err != nil {
 				log.Printf("error while adding order to cache: %v\n", err)
 			} else {
-				if err := (*kc.r).AddCache(orderData.OrderUid, dataBytes); err != nil {
-					log.Printf("error while adding order to cache: %v\n", err)
-				} else {
-					log.Printf("message with key %s is added to cache\n", msg.Key)
-				}
+				log.Printf("message with key %s is added to cache\n", msg.Key)
 			}
 		} else {
 			log.Printf("error while encoding message: %v\n", err)
 		}
 	}
-}
-
-func encodeMessage(msg kafka.Message) (order.Order, error) {
-	var orderData order.Order
-	err := json.Unmarshal(msg.Value, &orderData)
-	if err != nil {
-		return order.Order{}, fmt.Errorf("error while unmarshalling message: %v", err)
-	}
-	return orderData, nil
-}
-
-func prepareJSON(orderData order.Order) ([]byte, error) {
-	messageBytes, err := json.Marshal(orderData)
-	if err != nil {
-		return nil, err
-	}
-	return messageBytes, nil
 }

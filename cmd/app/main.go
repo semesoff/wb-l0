@@ -19,6 +19,8 @@ func main() {
 
 	var dbProvider db.DatabaseProvider = database
 	var redisProvider cache.RedisProvider = redisClient
+
+	database.RestoreCache(&redisProvider)                                                        // Restore cache from database
 	kafka.NewKafkaManager(&dbProvider, &redisProvider).StartKafkaServices(cfg.GetConfig().Kafka) // Init kafka services (consumer, producer)
 
 	r := mux.NewRouter()

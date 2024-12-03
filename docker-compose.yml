@@ -2,25 +2,41 @@ version: '3.8'
 
 services:
   kafka:
-    image: apache/kafka
-    container_name: kafka_container
+    image: apache/kafka:3.9.0
+    container_name: wb_l0_kafka
     ports:
       - "9092:9092"
+      - "9093:9093"
+    networks:
+      - wb_l0_network
 
   postgres:
-    image: postgres:17
-    container_name: postgres_container
+    image: postgres:15
+    container_name: wb_l0_postgres
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       POSTGRES_DB: db
     ports:
-      - "8080:8080"
-      -
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    depends_on:
-      - kafka
-      - postgres
+      - "5432:5432"
+    networks:
+      - wb_l0_network
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: wb_l0_app
+#    ports:
+#      - "8000:8000"
+#    networks:
+#      - wb_l0_network
+#    depends_on:
+#      - postgres
+#      - kafka
+
+networks:
+  wb_l0_network:
+    driver: bridge

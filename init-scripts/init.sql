@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS orders
+(
+    order_uid  VARCHAR NOT NULL PRIMARY KEY,
+    order_data JSONB NOT NULL
+);

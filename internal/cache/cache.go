@@ -2,14 +2,13 @@ package cache
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/go-redis/redis"
 	"wb-l0/config"
 	"wb-l0/internal/models/order"
 )
 
 type RedisProvider interface {
-	AddCache(key string, value interface{}) error
+	SetCache(key string, value interface{}) error
 	GetCache(key string) ([]byte, error)
 	BytesToModel(key string) (order.Order, error)
 }
@@ -32,7 +31,7 @@ func (r *Redis) InitRedisClient(cfg *config.Redis) {
 	r.client = client
 }
 
-func (r *Redis) AddCache(key string, value interface{}) error {
+func (r *Redis) SetCache(key string, value interface{}) error {
 	return r.client.Set(key, value, 0).Err()
 }
 
@@ -50,10 +49,5 @@ func (r *Redis) BytesToModel(key string) (order.Order, error) {
 	if err := json.Unmarshal(data, &orderData); err != nil {
 		return order.Order{}, err
 	}
-	fmt.Println(orderData)
 	return orderData, nil
-}
-
-func (r *Redis) RestoreCacheFromDB() {
-
 }
